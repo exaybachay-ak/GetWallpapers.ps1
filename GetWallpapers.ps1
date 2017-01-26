@@ -10,7 +10,7 @@ $wppattern | select -uniq
 
 #set up a storage location to put your images
 $pathexists = Test-Path /tmp/img/
-if ($pathexists -eq "Trus"){
+if ($pathexists -eq "True"){
 	$storagepath = "/tmp/img/"
 }
 else{
