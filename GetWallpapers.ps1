@@ -46,3 +46,16 @@ for ($i=0; $i -lt $imagearray.length; $i++){
 	Invoke-WebRequest $imagearray[$i] -OutFile $imagestorage
 
 }
+
+$wallpapers = gci C:\tmp\img
+$random = get-random -Maximum 23
+$randomwp = $wallpapers[$random].FullName
+
+Function Set-WallPaper($Value){
+
+    Set-ItemProperty -path 'HKCU:\Control Panel\Desktop\' -name wallpaper -value $value
+    rundll32.exe user32.dll, UpdatePerUserSystemParameters ,1 ,True
+
+}
+
+Set-WallPaper -value $randomwp
