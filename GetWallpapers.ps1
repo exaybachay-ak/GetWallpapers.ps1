@@ -48,8 +48,11 @@ for ($i=0; $i -lt $imagearray.length; $i++){
 }
 
 $wallpapers = gci C:\tmp\img
-$random = get-random -Maximum 23
+$random = get-random -Maximum $wallpapers.Length
 $randomwp = $wallpapers[$random].FullName
+if (test-path .\randomwpvar.txt){
+	$randomwpvar = get-content .\randomwpvar.txt
+}
 
 Function Set-WallPaper($Value){
 
@@ -58,4 +61,13 @@ Function Set-WallPaper($Value){
 
 }
 
+if($random -eq $randomwpvar){
+	while($random -eq $randomwpvar){
+		$random = get-random -Maximum 23
+		$randomwp = $wallpapers[$random].FullName
+	}
+}
+
 Set-WallPaper -value $randomwp
+
+$random | out-file -filepath .\randomwpvar.txt
