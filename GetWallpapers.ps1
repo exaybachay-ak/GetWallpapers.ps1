@@ -30,23 +30,51 @@ foreach($im in $images){
 #de-duplicate image array
 $imagearray = $imagearray | select -uniq
 
-#loop through the array and download images
-for ($i=0; $i -lt $imagearray.length; $i++){
-	
-	#Grab extension for use layer in naming files
-	[regex]$regex = '(\.png|\.gif|\.jpg|\.jpeg)'
+####---->  http://theadminguy.com/2009/04/30/portscan-with-powershell/
+function fastping{
+  [CmdletBinding()]
+  param(
+  [String]$computername = $scanIp,
+  [int]$delay = 100
+  )
 
-	#check current URL for filetype    
-	$filetype = $regex.Matches($imagearray[$i])
-
-	#make a variable for the full path
-	$imagestorage = $storagepath + $i + $filetype
-
-	#download image to computer	
-	Invoke-WebRequest $imagearray[$i] -OutFile $imagestorage
-
+  $ping = new-object System.Net.NetworkInformation.Ping  # see http://msdn.microsoft.com/en-us/library/system.net.networkinformation.ipstatus%28v=vs.110%29.aspx
+  try {
+    if ($ping.send($computername,$delay).status -ne "Success") {
+      return $false;
+    }
+    else {
+      return $true;
+    }
+  } catch {
+    return $false;
+  }
 }
 
+#Check Internet connectivity before downloading images
+$connectivity = fastping 8.8.8.8
+
+if($connectivity -eq "True"){
+
+		#loop through the array and download images
+		for ($i=0; $i -lt $imagearray.length; $i++){
+	
+			#Grab extension for use layer in naming files
+			[regex]$regex = '(\.png|\.gif|\.jpg|\.jpeg)'
+
+			#check current URL for filetype    
+			$filetype = $regex.Matches($imagearray[$i])
+
+			#make a variable for the full path
+			$imagestorage = $storagepath + $i + $filetype
+
+			#download image to computer	
+			Invoke-WebRequest $imagearray[$i] -OutFile $imagestorage
+
+	}
+}
+
+#Prepare variables for setting wallpaper
 $wallpapers = gci C:\tmp\img
 $random = get-random -Maximum $wallpapers.Length
 $randomwp = $wallpapers[$random].FullName
