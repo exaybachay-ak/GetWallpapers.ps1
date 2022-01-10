@@ -1,14 +1,10 @@
 #set up a storage location to put your images
 if (Test-Path C:\tmp\img){
-	
-	$storagepath = "C:\tmp\img\"
-
+	$null
 }
 
 else{
-	
 	New-Item -ItemType Directory -Force -Path C:\tmp\img
-
 }
 
 $storagepath = "C:\tmp\img\"
@@ -19,6 +15,7 @@ $gethours = Get-Date -format "hhmm"
 $logtime = "getWallpapers_$getdate" + "_" + "$gethours.log"
 $pth = (pwd).path
 $logfile = $pth + "\" + $logtime
+
 
 #Changed URL to old.reddit.com because the new tiled layout only shows 5 wallpapers
 $url = "https://old.reddit.com/r/wallpapers/top/?sort=top&t=week"
@@ -36,6 +33,7 @@ foreach($im in $images){
 
 #de-duplicate image array
 $imagearray = $imagearray | select -uniq
+
 
 #loop through the array and download images
 for ($i=0; $i -lt $imagearray.length; $i++){
@@ -65,24 +63,25 @@ Function Set-WallPaper($Value){
 
 }
 
-Function GetHash($Filename){
-	Get-Filehash $Filename
-}
-
 Function DedupeImageDirectory(){
 	###get existing file hashes
-	$curhashes = gci $storagepath | %{ GetHash($_) }
-	$uniquehashes = gci $storagepath | % { GetHash($_) } | select -unique
+	$curhashes = gci $storagepath | %{ Get-Filehash($_.FullName) }
 
 	###look for duplicates
-	$dupes = (Compare-Object $curhashes $uniquehashes).InputObject
+	#$dupes = (Compare-Object $curhashes $uniquehashes).InputObject
 
 	###delete duplicates
-	$dupes | %{ 
-		write-output "Removing duplicate: $_.Path" | out-file $logfile;
-		remove-item $_.Path 
-	}
-
+    $curhashes | sort-object Hash | % { 
+        if($prevhash){
+            if($prevhash.Hash -eq $_.Hash){
+                write-output "Removing duplicate: $_.FullName" | out-file $logfile -Append;
+                remove-item $_.Path;
+            }
+        }
+        $_; 
+        write-output "BLAH";
+        $prevhash = $_; 
+    }
 }
 
 Set-WallPaper -value $randomwp
