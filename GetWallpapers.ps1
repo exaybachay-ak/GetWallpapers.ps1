@@ -56,6 +56,7 @@ $wallpapers = gci C:\tmp\img
 $random = get-random -Maximum 33
 $randomwp = $wallpapers[$random].FullName
 
+
 Function Set-WallPaper($Value){
 
     Set-ItemProperty -path 'HKCU:\Control Panel\Desktop\' -name wallpaper -value $value
@@ -63,15 +64,13 @@ Function Set-WallPaper($Value){
 
 }
 
+
 Function DedupeImageDirectory(){
 	###get existing file hashes
 	$curhashes = gci $storagepath | %{ Get-Filehash($_.FullName) }
 
-	###look for duplicates
-	#$dupes = (Compare-Object $curhashes $uniquehashes).InputObject
-
 	###delete duplicates
-    $curhashes | sort-object Hash | % { 
+    	$curhashes | sort-object Hash | % { 
         if($prevhash){
             if($prevhash.Hash -eq $_.Hash){
                 write-output "Removing duplicate: $_.FullName" | out-file $logfile -Append;
@@ -82,6 +81,8 @@ Function DedupeImageDirectory(){
     }
 }
 
+
 Set-WallPaper -value $randomwp
+
 
 DedupeImageDirectory
