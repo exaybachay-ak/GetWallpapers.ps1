@@ -78,8 +78,6 @@ Function DedupeImageDirectory(){
                 remove-item $_.Path;
             }
         }
-        $_; 
-        write-output "BLAH";
         $prevhash = $_; 
     }
 }
